@@ -1,0 +1,4 @@
+For now, use "lua launch_text.lua" to start it up
+I'm still working on launch_gl.lua, 
+and will probably soon create a buffered console version for launching inside a webpage
+
