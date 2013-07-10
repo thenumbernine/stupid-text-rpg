@@ -1,5 +1,4 @@
 require 'ext'
-require 'con'
 
 Log = class()	
 Log.file = io.open('log.txt', 'w')

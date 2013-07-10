@@ -1,5 +1,14 @@
-For now, use "lua launch_text.lua" to start it up
-I'm still working on launch_gl.lua, 
-and will probably soon create a buffered console version for launching inside a webpage
+=== Lua Text Version ===
 
 depends on my lua-ext at http://github.com/thenumbernine/lua-ext
+put it in the 'ext' folder off your cwd (or LUA_PATH)
+
+use "lua launch_text.lua" to start it up
+
+===	Lua OpenGL Version ===
+
+I'm still working on launch_gl.lua
+
+===	HTML Version ===
+
+Works courtesy of lua.vm.js at https://github.com/kripken/emscripten

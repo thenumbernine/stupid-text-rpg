@@ -1,5 +1,4 @@
 -- functionality
-require 'con'
 
 View = class()
 View.size = vec2(60,20)

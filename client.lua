@@ -1,6 +1,5 @@
 require 'army'
 require 'view'
-require 'con'
 
 --[[
 TODO
