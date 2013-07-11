@@ -22,7 +22,7 @@ end
 function Log:render()
 	for i=1,self.size do
 		local line = self.lines[i]
-		con.goto(1, view.size[2]+i)
+		con.locate(1, view.size[2]+i)
 		if line then
 			con.write(line)
 		end

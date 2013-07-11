@@ -80,7 +80,7 @@ function render()
 			if map.bbox:contains(v) then
 				local tile = map.tiles[v[1]][v[2]]
 				if tile:isRevealed() then
-					con.goto(i,j)
+					con.locate(i,j)
 				
 					local topEnt
 					if tile.ents then	-- we only keep the array if there's something in it
@@ -97,11 +97,11 @@ function render()
 						con.write(tile:getChar())
 					end
 				else
-					con.goto(i,j)
+					con.locate(i,j)
 					con.write(' ')
 				end
 			else
-				con.goto(i,j)
+				con.locate(i,j)
 				con.write(' ')
 			end
 		end
@@ -120,7 +120,7 @@ function render()
 	local y = 1
 	local function printright(s)
 		if s then
-			con.goto(view.size[1]+2,y)
+			con.locate(view.size[1]+2,y)
 			con.write(s)
 		end
 		y = y + 1

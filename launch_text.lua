@@ -15,7 +15,7 @@ end
 function con.draw()
 end
 
-function con.goto(x,y)
+function con.locate(x,y)
 	io.write('\027['..y..';'..x..'H')
 end
 

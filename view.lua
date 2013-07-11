@@ -16,21 +16,21 @@ function View:drawBorder(b)
 	local maxs = b.max
 	for x=mins[1]+1,maxs[1]-1 do
 		if mins[2] >= 1 and mins[2] <= view.size[2] then
-			con.goto(x, mins[2])
+			con.locate(x, mins[2])
 			con.write('-')
 		end
 		if maxs[2] >= 1 and maxs[2] <= view.size[2] then
-			con.goto(x, maxs[2])
+			con.locate(x, maxs[2])
 			con.write('-')
 		end
 	end
 	for y=mins[2]+1,maxs[2]-1 do
 		if mins[1] >= 1 and mins[1] <= view.size[1] then
-			con.goto(mins[1], y)
+			con.locate(mins[1], y)
 			con.write('|')
 		end
 		if maxs[1] >= 1 and maxs[1] <= view.size[1] then
-			con.goto(maxs[1], y)
+			con.locate(maxs[1], y)
 			con.write('|')
 		end
 	end
@@ -39,7 +39,7 @@ function View:drawBorder(b)
 		for y=1,2 do
 			local v = vec2(minmax[x][1], minmax[y][2])
 			if view.bbox:contains(v) then
-				con.goto(unpack(v))
+				con.locate(unpack(v))
 				con.write('+')
 			end
 		end
@@ -49,7 +49,7 @@ end
 function View:fillBox(b)
 	b = box2(b):clamp(view.bbox)
 	for y=b.min[2],b.max[2] do
-		con.goto(b.min[1], y)
+		con.locate(b.min[1], y)
 		con.write((' '):rep(b.max[1] - b.min[1] + 1))
 	end
 end

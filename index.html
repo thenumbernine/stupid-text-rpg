@@ -1,30 +1,76 @@
 <html>
 	<head>
 		<title>Stupid</title>
+		<script type='text/javascript' src='../../js/jquery-1.10.0.min.js'></script>
 		<script type='text/javascript'>
 var outputElement;
 //init Module here, for use later in lua.vm.js
 var Module = {
+/* default is console.log, which works for me
 	print: function(x) {
 		outputElement.value = (outputElement.value ? outputElement.value + '\n' : '') + x;
 	}
+*/
 };
 		</script>
 		<script type='text/javascript' src='lua.vm.js'></script>
 		<script type='text/javascript'>
-function main() {
-	outputElement = document.getElementById('output');
-	var code = 'print "test"';
-	//grab all our .lua files
-	//mash all the text together
-	//skip con.lua, use a con-js.lua or something equivalent instead
-	//ignore the requires, hope they're in the right order, or inference the dependencies yourself
-	//then pass it off to Lua
-	Lua.execute(code);
+
+var luafiles = [
+'box.lua',
+'map.lua',
+'unit.lua',
+'jobs.lua',
+'util.lua',
+'vec.lua',
+'army.lua',
+'battle.lua',
+'ext/io.lua',
+'ext/init.lua',
+'ext/table.lua',
+'ext/math.lua',
+'ext/serialize.lua',
+'ext/string.lua',
+'ext/class.lua',
+'launch_gl.lua',
+'treasure.lua',
+'monster.lua',
+'client.lua',
+'items.lua',
+'player.lua',
+'entity.lua',
+'log.lua',
+'launch_text.lua',
+'launch_js.lua',
+'view.lua',
+'stupid.lua'
+];
+
+function doneLoadingFilesystem() {
+	Lua.execute("require 'launch_js'");
 }
+
+$(document).ready(function() {
+	outputElement = document.getElementById('output');
+	var doneCount = 0;
+	$.each(luafiles, function(_,filename) {
+		//preload, but with text ...
+		$.ajax({
+			url:filename
+		}).fail(function() {
+			throw "failed to precache file "+filename;
+		}).done(function(data) {
+			FS.createDataFile('/', filename, data, true, false);
+			++doneCount;
+			if (doneCount == luafiles.length) {
+				doneLoadingFilesystem();
+			}
+		});
+	});	
+});
 		</script>
 	</head>
-	<body onload='main();'>
+	<body>
 		<textarea id='output' style='width:100%; height:100%'></textarea>
 	</body>
 </html>
