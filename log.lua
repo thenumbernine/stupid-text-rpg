@@ -1,7 +1,9 @@
 require 'ext'
 
 Log = class()	
-Log.file = io.open('log.txt', 'w')
+if not OMIT_LOG_FILE then
+	Log.file = io.open('log.txt', 'w')
+end
 Log.index = 0
 Log.lines = table()
 Log.size = 4
@@ -9,8 +11,10 @@ Log.__call = function(self, s)
 	local lines = s:split('\n')
 	for _,line in ipairs(lines) do
 		line = self.index..'> '..line
-		self.file:write(line..'\n')
-		self.file:flush()
+		if self.file then
+			self.file:write(line..'\n')
+			self.file:flush()
+		end
 		self.lines:insert(line)
 		self.index = self.index + 1
 	end

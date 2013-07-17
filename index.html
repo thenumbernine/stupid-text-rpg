@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>Stupid</title>
 		<script type='text/javascript' src='../../js/jquery-1.10.0.min.js'></script>
 		<script type='text/javascript'>
@@ -9,8 +11,8 @@ var stdoutLine = '';
 var stderrLine = '';
 var Module = {
 	print: function(s) {
-		console.log("print: "+s);
-		//outputElement.value = (outputElement.value ? outputElement.value + '\n' : '') + x;
+		//console.log("print: "+s);
+		outputElement.value = (outputElement.value ? outputElement.value + '\n' : '') + x;
 	}
 /* I thought overriding these would be a good idea because otherwise it seems errors go to never never land ...
 but it's only caused more harm than good
@@ -75,11 +77,33 @@ var luafiles = [
 'stupid.lua'
 ];
 
+var fileContents = {};
 function doneLoadingFilesystem() {
-	Lua.execute("require 'launch_js'");
+	Lua.execute(fileContents['launch_js.lua']);
+}
+
+function getLuaRequiredFile(fn) {
+	fn = fn.replace('.', '/');
+	var result = undefined;
+	$.each([
+		'?.lua',
+		'?/init.lua'
+	], function(_,pattern){
+		var fullfn = pattern.replace('?', fn);
+		if (fullfn in fileContents) {
+			result = fileContents[fullfn];
+			return true;	//break;
+		}
+	});
+	return result;
+}
+
+function clearOutput() {
+	outputElement.value = '';
 }
 
 function setOutput(str) {
+	console.log("setOutput: "+str);
 	outputElement.value = str;
 }
 
@@ -115,6 +139,16 @@ $(document).ready(function() {
 				}
 				filename = path.substring(lastSlash+1);
 			}
+			for (var i = 0; i < data.length; ++i) {
+				var ch = data.charCodeAt(i);
+				if ((ch < 32 || ch > 127) && 	//is valid
+					ch != 9 && 					//\t
+					ch != 10) 					//\n
+				{
+					throw "file "+path+" has bad char "+ch+" at "+i;
+				}
+			}
+			fileContents[path] = data;
 			FS.createDataFile(dir, filename, data, true, false);
 			++doneCount;
 			if (doneCount == luafiles.length) {
@@ -127,6 +161,6 @@ $(document).ready(function() {
 		</script>
 	</head>
 	<body>
-		<textarea id='output' readonly="readonly" style='width:100%; height:100%'></textarea>
+		<textarea id='output' readonly="readonly" cols=81 rows=26></textarea>
 	</body>
 </html>

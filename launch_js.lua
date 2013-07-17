@@ -1,5 +1,30 @@
+local oldrequire = require
+local myPackageLoaded = {}
+function require(fn, ...)
+	print('requiring file '..fn)
+	--[[
+	this relies on the lua.vm.js filesystem, which I suspect is slow
+	and I"m hoping is buggy (since something is and I would like it to be something that I can circumvent)
+	--]]
+	--return oldrequire(fn, ...)
+	--[[
+	..so instead I'm going to recreate require()
+	I can't do it all on the JS side -- since I have to store arbitrary return contents of require(), such as lua objects and functions
+	so I will hold those here, and go to JS for the file contents
+	--]]
+	if myPackageLoaded[fn] then
+		return myPackageLoaded[fn]
+	end
+	local reqfile = assert(js.global.getLuaRequiredFile(fn), "failed to find file "..fn)
+	local reqfn = assert(loadstring(reqfile), "failed to load file "..fn)
+	local result = reqfn() or true
+	myPackageLoaded[fn] = result
+	return result
+end
+
 -- macro for running and testing the js launcher through lua
 --USE_LUA = true
+OMIT_LOG_FILE = true
 
 if not USE_LUA then
 	package.path = package.path .. ';./?/init.lua'
@@ -32,11 +57,11 @@ con = {
 	end,
 	draw = function() 
 --print('con.draw()')
-		if USE_LUA then
+		--if USE_LUA then
 			print(table.concat(lines, '\n'))
-		else
-			js.global.setOutput(table.concat(lines, '\n'))
-		end
+		--else
+		--	js.global.setOutput(table.concat(lines, '\n'))
+		--end
 	end,
 	locate = function(x,y) 
 --print('con.locate('..x..','..y..')')
@@ -62,6 +87,7 @@ con = {
 	end,
 	clear = function() 
 --print('con.clear()')
+		js.global.clearOutput()
 		lines = {}
 		for y=1,height do
 			lines[y] = (' '):rep(width)
