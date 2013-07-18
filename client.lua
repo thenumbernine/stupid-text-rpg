@@ -1018,55 +1018,15 @@ function Client:popState()
 end
 
 function Client:processCmdState(state)
-	local ch = launcher.getInput()
+	local ch = launcher.getCmd()
+	if ch == 'quit' then
+		self:pushState(Client.quitCmdState)
+	end
 
-	local dodebug  = (function()
-		if ch == 'q' then
+	if self.dead then
+		if self.cmdstate ~= Client.quitCmdState then
 			self:pushState(Client.quitCmdState)
 		end
-		
-		if ch == '`' then
-			return true
-		end
-		
-		if ch == 13 then ch = 'enter' end
-		if ch == ' ' then ch = 'space' end
-
-		if self.dead then
-			if self.cmdstate ~= Client.quitCmdState then
-				self:pushState(Client.quitCmdState)
-			end
-		end
-
-		-- hardcode these move cmds
-		-- TODO separate escape from escape-codes
-		local moveCmd
-		if ch == string.char(27) then
-			ch = io.stdin:read(1)
-			if ch == '[' then
-				ch = io.stdin:read(1)
-				if ch == 'A' then
-					moveCmd = 'up'
-				elseif ch == 'B' then
-					moveCmd = 'down'
-				elseif ch == 'D' then
-					moveCmd = 'left'
-				elseif ch == 'C' then
-					moveCmd = 'right'
-				end
-			end
-		end
-		if moveCmd then ch = moveCmd end
-	end)()
-	
-	if dodebug then
-		con.write('>>')
-		local cmd = io.read('*l'):gsub('^=','return ')
-		local status, result = pcall(function()
-			return table.concat((table{assert(loadstring(cmd))()}):map(tostring), '\t')
-		end)
-		log('"'..cmd..'"')
-		log(' '..result)
 	end
 
 	if self.dead and self.cmdstate ~= Client.quitCmdState then return end
