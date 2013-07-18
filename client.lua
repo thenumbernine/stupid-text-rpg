@@ -123,7 +123,6 @@ function Window:draw()
 	and i <= #self.lines
 	do
 		local line = self.lines[i]
-
 		con.locate(unpack(cursor))
 		if not self.noInteraction
 		and line == self.selectableLines[self.currentLine]
@@ -1019,6 +1018,7 @@ end
 
 function Client:processCmdState(state)
 	local ch = launcher.getCmd()
+	
 	if ch == 'quit' then
 		self:pushState(Client.quitCmdState)
 	end

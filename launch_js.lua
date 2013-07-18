@@ -1,14 +1,33 @@
 OMIT_LOG_FILE = true
+--USE_LUA = true
 
 local stupid
 launcher = {
-	getCmd = function(callback)
-		local ch = tostring(js.global.getLastCmd() or '')
-		--print('lua got cmd',ch,'byte',ch:byte())
+	getCmd = function()
+		local ch
+		if USE_LUA then
+			--os.execute("stty raw -echo")	-- read single keystrokes
+			ch = io.stdin:read('*l')
+			--os.execute("stty sane")			-- reset read
+			ch = ({
+				[' '] = 'space',
+				['\n'] = 'enter',
+				i = 'up',
+				j ='left',
+				k = 'right',
+				m = 'down',
+				q = 'quit',
+			})[ch] or ch
+		else
+			ch = launcher.lastCmd
+			launcher.lastCmd = nil
+		end
+		ch = tostring(ch or nil)
 		return ch 
 	end,
 
-	update = function()
+	update = function(lastCmd)
+		launcher.lastCmd = lastCmd
 		stupid.update()
 	end,
 }
@@ -37,6 +56,7 @@ con = {
 		local rhs = line:sub(col+#s)
 		line = (lhs .. s .. rhs):sub(1,width)
 		lines[row] = line
+		col = col + #s
 	end,
 	clearline = function()
 		local line = lines[row]
@@ -46,7 +66,11 @@ con = {
 		lines[row] = line
 	end,
 	clear = function() 
-		js.global.clearOutput()
+		if USE_LUA then
+			io.write('\027[2J')
+		else
+			js.global.clearOutput()
+		end
 		lines = {}
 		for y=1,height do
 			lines[y] = (' '):rep(width)
@@ -57,5 +81,10 @@ con = {
 print('getting stupid')
 stupid = require 'stupid'
 print('running stupid')
-stupid.update()
+
+if USE_LUA then
+	stupid.run()
+else
+	stupid.gameUpdate()
+end
 

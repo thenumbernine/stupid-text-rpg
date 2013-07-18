@@ -167,7 +167,7 @@ end
 
 local stupid = {}
 
-function stupid.update()
+function stupid.gameUpdate()
 	if not game.paused then
 		for _,ent in ipairs(ents) do
 			ent:update()
@@ -179,14 +179,20 @@ function stupid.update()
 	end
 	
 	render()
-	
-	client:update()
 
+end
+
+function stupid.update()
+	client:update()
 	game.time = game.time + 1
+
+	stupid.gameUpdate()
 end
 
 
 function stupid.run()
+	stupid.gameUpdate()
+	
 	repeat
 		stupid.update()
 	until game.done

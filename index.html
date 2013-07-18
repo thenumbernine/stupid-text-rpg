@@ -78,30 +78,13 @@ var luafiles = [
 	'stupid.lua'
 ];
 
-var cmdBuffer = [];
-function getLastCmd() {
-	var key;
-	if (cmdBuffer.length == 0) {
-		key = String.fromCharCode(0);
-	} else {
-		key = cmdBuffer.splice(0,1)[0];
-	}
-	//Module.print('polling key '+key+' byte '+key.charCodeAt(0));
-	return key; 
-}
+var lastCmd = null; 
 
 //update if there are any stored input commands
 function update() {
-	if (cmdBuffer.length > 0) {
-		//for console stupid i have input gather after render.
-		//this is so the user can react to what is displayed.
-		//it could go before render if an initial render was performed.
-		//unfortunately for lua.vm.js, i haven't managed to get coroutine.yield wrapping everything to facilitate blocking input,
-		//so i had to unravel the update loop and collect input outside.
-		//the tradeoff is now we react to input without a redraw.  hence why i have two updates. the first gets input, the second redraws
-		Lua.execute('launcher.update()');
-		Lua.execute('launcher.update()');
-
+	if (lastCmd !== null) {
+		Lua.execute('launcher.update("'+lastCmd+'")');
+		lastCmd = null;
 	}
 }
 
@@ -109,34 +92,29 @@ function doneLoadingFilesystem() {
 
 	//set up input handler
 	$(window).keydown(function(e) {
-		//Module.print('in keydown for code '+e.keyCode+' which '+String.fromCharCode(e.which));
 		switch (e.keyCode) {
 		case 37:	//left
-			cmdBuffer.push('left');
-			e.preventDefault();
+			lastCmd = 'left';
 			break;
 		case 38:	//up
-			cmdBuffer.push('up');
-			e.preventDefault();
+			lastCmd = 'up';
 			break;
 		case 39:	//right
-			cmdBuffer.push('right');
-			e.preventDefault();
+			lastCmd = 'right';
 			break;
 		case 40:	//down
-			cmdBuffer.push('down');
-			e.preventDefault();
+			lastCmd = 'down';
 			break;
 		case 32:	//space
-			cmdBuffer.push('space');
+			lastCmd = 'space';
 			break;
 		case 13:	//enter
-			cmdBuffer.push('enter');
+			lastCmd = 'enter';
 			break;
 		default:
 			var key = String.fromCharCode(e.which).toLowerCase();
 			if (key == 'q') key = 'quit';
-			cmdBuffer.push(key);
+			lastCmd = key;
 			break;
 		}
 	});
