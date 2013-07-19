@@ -241,7 +241,7 @@ $(document).ready(function() {
 				},
 				done : function() {
 					Module.print('initializing...');
-					doneLoadingFilesystem();
+					setTimeout(doneLoadingFilesystem, 0);
 				}
 			});
 		}
