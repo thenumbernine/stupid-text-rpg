@@ -1,6 +1,7 @@
+//init Module here, for use later in lua.vm.js
+
 var printBuffer = '';
 var printElement = undefined;
-//init Module here, for use later in lua.vm.js
 function printOutAndErr(s) {
 	console.log("print: "+s);
 	if (printBuffer !== '') printBuffer += '\n';
@@ -18,16 +19,6 @@ function printOutAndErr(s) {
 
 function clearOutput() {
 	printElement.html(printBuffer = '');
-}
-
-function setOutput(str) {
-	printElement.text(
-		str
-		//.replace(new RegExp('&', 'g'), '&amp;')
-		.replace(new RegExp('<', 'g'), '&lt;')
-		.replace(new RegExp('>', 'g'), '&gt;')
-		.replace(new RegExp('"', 'g'), '&quot;')
-	);
 }
 
 var Module = {
@@ -86,15 +77,11 @@ function doneLoadingFilesystem() {
 
 $(document).ready(function() {
 	printElement = $('#print');
-	var doneCount = 0;
-	
-	// remotely add lua.vm.js here
 
-	var fsl = new FileSetLoader({
+	executeLuaVMFileSet({
 		//TODO don't store them here
 		//just pull from https://raw.github.com/thenumbernine/stupid-text-rpg/master/
 		files : [
-			'/js/lua.vm.js',
 			'army.lua',
 			'battle.lua',
 			'box.lua',
@@ -112,55 +99,17 @@ $(document).ready(function() {
 			'unit.lua',
 			'util.lua',
 			'vec.lua',
-			'view.lua',
-			'ext/class.lua',
-			'ext/init.lua',
-			'ext/io.lua',
-			'ext/math.lua',
-			'ext/serialize.lua',
-			'ext/string.lua',
-			'ext/table.lua'
+			'view.lua'	
 		],
+		packages : ['ext'],
+		onexec : function(url, dest) {
+			Module.print('loading '+dest+' ...');
+		},
 		//wait til all are loaded, then insert them in order
 		//this way we run the lua.vm.js before writing to the filesystems (since the filesystem is created by lua.vm.js)
-		done : function() {	
-			var thiz = this;
-			asyncfor({
-				map	: this.results,
-				callback : function(i,result) {
-					var filename = thiz.files[i];
-				
-					Module.print('executing '+filename+' ...');
-					//first load the vm...
-					if (filename.substring(filename.length-3) == '.js') {
-						//this will run in-place.  I always thought it sucked that Lua loadstring() didn't run in place, now I see why it's a good idea.  consistency of scope.
-						//eval(result);
-						var s = document.createElement("script");
-						s.type = "text/javascript";
-						s.innerHTML = result;
-						$("head").append(s);
-					} else if (filename.substring(filename.length-4) == '.lua') {
-						//pull apart filename and directory path 
-						var lastSlash = filename.lastIndexOf('/');
-						if (lastSlash != -1) {
-							var dir = filename.substring(0, lastSlash);
-							try { 	//how do you detect if a path is already created?
-								FS.createPath('/', dir, true, true);
-							} catch (e) {
-							}
-							filename = filename.substring(lastSlash+1);
-						}
-						
-						FS.createDataFile(dir, filename, result, true, false);
-					} else {
-						throw "don't know what to do with "+filename;
-					}
-				},
-				done : function() {
-					Module.print('initializing...');
-					setTimeout(doneLoadingFilesystem, 0);
-				}
-			});
+		done : function() { 
+			Module.print('initializing...');
+			setTimeout(doneLoadingFilesystem, 0);
 		}
 	});
 });
