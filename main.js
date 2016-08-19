@@ -70,7 +70,7 @@ function doneLoadingFilesystem() {
 
 	//launch first file
 	Lua.execute([
-		"package.path = package.path .. ';./?/init.lua'",
+		"package.path = package.path .. ';./?/?.lua'",
 		"require 'launch_js'"
 	].join('\n'));
 }
