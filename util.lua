@@ -17,7 +17,7 @@ function setFieldsByRange(obj, fields)
 	for _,field in ipairs(fields) do
 		local range = obj[field..'Range']
 		if range then
-			local lo, hi = unpack(range)
+			local lo, hi = table.unpack(range)
 			assert(hi >= lo, "item "..obj.name.." field "..field.." has interval "..tostring(hi)..","..tostring(lo))
 			obj[field] = math.random() * (hi - lo) + lo
 		end
