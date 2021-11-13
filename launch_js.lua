@@ -1,6 +1,12 @@
 OMIT_LOG_FILE = true
 --USE_LUA = true
 
+function io.popen() 
+	return {
+		read = function() return '' end,
+	}
+end
+
 local stupid
 launcher = {
 	getCmd = function()
@@ -87,4 +93,3 @@ if USE_LUA then
 else
 	stupid.gameUpdate()
 end
-
