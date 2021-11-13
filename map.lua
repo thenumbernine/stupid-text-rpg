@@ -61,8 +61,8 @@ for i=1,math.floor(map.size:volume() / 13) do
 	local seed = {
 		pos = vec2(math.random(map.size[1]), math.random(map.size[2])),
 	}
-	seed.mins = vec2(unpack(seed.pos))
-	seed.maxs = vec2(unpack(seed.pos))
+	seed.mins = vec2(table.unpack(seed.pos))
+	seed.maxs = vec2(table.unpack(seed.pos))
 	
 	seeds:insert(seed)
 	map.tiles[seed.pos[1]][seed.pos[2]].seed = seed

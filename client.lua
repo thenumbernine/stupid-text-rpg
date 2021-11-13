@@ -123,7 +123,7 @@ function Window:draw()
 	and i <= #self.lines
 	do
 		local line = self.lines[i]
-		con.locate(unpack(cursor))
+		con.locate(table.unpack(cursor))
 		if not self.noInteraction
 		and line == self.selectableLines[self.currentLine]
 		then
@@ -634,7 +634,7 @@ Client.inspectCmdState = {
 	draw = function(client, state)
 		local viewpos = client.inspectPos - view.delta
 		if view.bbox:contains(viewpos) then
-			con.locate(unpack(viewpos))
+			con.locate(table.unpack(viewpos))
 			con.write('X')
 		end
 		client.statWin:draw()

@@ -39,7 +39,7 @@ function View:drawBorder(b)
 		for y=1,2 do
 			local v = vec2(minmax[x][1], minmax[y][2])
 			if view.bbox:contains(v) then
-				con.locate(unpack(v))
+				con.locate(table.unpack(v))
 				con.write('+')
 			end
 		end

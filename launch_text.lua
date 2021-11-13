@@ -1,8 +1,13 @@
 launcher = {
 	getInput = function()
-		os.execute("stty raw -echo")	-- read single keystrokes
+		local ffi = require 'ffi'
+		if ffi.os ~= 'Windows' then
+			os.execute("stty raw -echo")	-- read single keystrokes
+		end
 		local ch = io.stdin:read(1)
-		os.execute("stty sane")			-- reset read
+		if ffi.os ~= 'Windows' then
+			os.execute("stty sane")			-- reset read
+		end
 		return ch
 	end,
 	getChar = function()

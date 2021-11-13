@@ -33,7 +33,7 @@ end
 -- returns an array of tiles within the l-inf distance from the radius
 function floodFillTiles(pos, bbox)
 	bbox = box2(bbox):clamp(map.bbox)	-- make sure it's in the map
-	pos = vec2(unpack(pos))
+	pos = vec2(table.unpack(pos))
 	local positions = table{pos}
 	local allpositionset = table()
 	allpositionset[tostring(pos)] = true
@@ -55,7 +55,7 @@ function floodFillTiles(pos, bbox)
 		end
 	end
 	return allpositionset:keys():map(function(v)
-		return vec2(unpack(v:split(','):map(function(x) return tonumber(x) end)))
+		return vec2(table.unpack(v:split(','):map(function(x) return tonumber(x) end)))
 	end)
 end
 
@@ -81,10 +81,10 @@ function pathSearchToPoint(args)
 	assert(bbox:contains(dest))
 	
 	local states = table{
-		{pos = vec2(unpack(start))}
+		{pos = vec2(table.unpack(start))}
 	}
 	local allpositions = table()
-	allpositions[tostring(vec2(unpack(start)))] = true
+	allpositions[tostring(vec2(table.unpack(start)))] = true
 
 	local bestState
 	local bestDist
@@ -233,7 +233,7 @@ function Entity:addExp(exp)
 			for _,field in ipairs(self.equipFields) do
 				local range = self[field..'LevelUpRange']
 				if range then
-					local lo, hi = unpack(range)
+					local lo, hi = table.unpack(range)
 					assert(hi >= lo, "item "..obj.name.." field "..field.." has interval "..tostring(hi)..","..tostring(lo))
 					self[field] = math.random() * (hi - lo) + lo
 				end
@@ -361,7 +361,7 @@ end
 function Entity:beginTurn()
 	self.ct = 100
 	self.movesLeft = self:stat('move')
-	self.turnStartPos = vec2(unpack(self.pos))
+	self.turnStartPos = vec2(table.unpack(self.pos))
 	self.acted = false
 	self.army.currentEnt = self
 end
