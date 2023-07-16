@@ -1,7 +1,7 @@
 OMIT_LOG_FILE = true
 --USE_LUA = true
 
-function io.popen() 
+function io.popen()
 	return {
 		read = function() return '' end,
 	}
@@ -29,7 +29,7 @@ launcher = {
 			launcher.lastCmd = nil
 		end
 		ch = tostring(ch or nil)
-		return ch 
+		return ch
 	end,
 
 	update = function(lastCmd)
@@ -43,19 +43,19 @@ local width, height
 local col = 1
 local row = 1
 con = {
-	init = function(width_, height_) 
+	init = function(width_, height_)
 		width = width_
 		height = height_
 		con.clear()
 	end,
-	draw = function() 
+	draw = function()
 		print(table.concat(lines, '\n'))
 	end,
-	locate = function(x,y) 
+	locate = function(x,y)
 		col = x
 		row = y
 	end,
-	write = function(s) 
+	write = function(s)
 		local line = lines[row]
 		if not line then return end
 		local lhs = line:sub(1,col-1)
@@ -71,7 +71,7 @@ con = {
 		line = lhs .. (' '):rep(width - #lhs)
 		lines[row] = line
 	end,
-	clear = function() 
+	clear = function()
 		if USE_LUA then
 			io.write('\027[2J')
 		else

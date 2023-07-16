@@ -1,45 +1,52 @@
-//init Module here, for use later in lua.vm.js
+import {require} from '/js/util.js';
+import {executeLuaVMFileSet} from '/js/lua.vm-util.js.lua';
 
-var printBuffer = '';
-var printElement = undefined;
+let printBuffer = '';
+const printElement = document.getElementById('print');
+
 function printOutAndErr(s) {
 	console.log("print: "+s);
 	if (printBuffer !== '') printBuffer += '\n';
 	printBuffer += s
-	printElement.html(printBuffer
+	printElement.innerHTML = printBuffer
 		.replace(new RegExp('&', 'g'), '&amp;')
 		.replace(new RegExp('<', 'g'), '&lt;')
 		.replace(new RegExp('>', 'g'), '&gt;')
 		.replace(new RegExp('"', 'g'), '&quot;')
 		.replace(new RegExp('\n', 'g'), '<br>')
-		.replace(new RegExp(' ', 'g'), '&nbsp;')
-	);
-	$(document).scrollTop($(document).height()); 
+		.replace(new RegExp(' ', 'g'), '&nbsp;');
+	//document.scrollTop(document.offsetHeight);
 }
 
-function clearOutput() {
-	printElement.html(printBuffer = '');
-}
-
-var Module = {
-	print : printOutAndErr,
-	printErr : printOutAndErr,
-	stdin : function() {} 
+// exported for the lua vm which the lua code to call via its js global
+window.clearOutput = () => {
+	printElement.innerHTML = printBuffer = '';
 };
 
-var lastCmd = null; 
+
+//exported for the LuaModule require
+window.LuaModule = {
+	print : printOutAndErr,
+	printErr : printOutAndErr,
+	stdin : function() {},
+};
+let LuaModule = await require('/js/lua.vm.js');
+window.LuaModule = undefined;
+window.LuaModule = LuaModule;
+
+let lastCmd = null;
 
 //update if there are any stored input commands
 function update() {
 	if (lastCmd !== null) {
-		Lua.execute('launcher.update("'+lastCmd+'")');
+		LuaModule.Lua.execute('launcher.update("'+lastCmd+'")');
 		lastCmd = null;
 	}
 }
 
 function doneLoadingFilesystem() {
 	//set up input handler
-	$(window).keydown(function(e) {
+	window.addEventListener('keydown', e => {
 		switch (e.keyCode) {
 		case 37:	//left
 			lastCmd = 'left';
@@ -60,7 +67,7 @@ function doneLoadingFilesystem() {
 			lastCmd = 'enter';
 			break;
 		default:
-			var key = String.fromCharCode(e.which).toLowerCase();
+			let key = String.fromCharCode(e.which).toLowerCase();
 			if (key == 'q') key = 'quit';
 			lastCmd = key;
 			break;
@@ -69,48 +76,43 @@ function doneLoadingFilesystem() {
 	setInterval(update, 100);
 
 	//launch first file
-	Lua.execute([
+	LuaModule.Lua.execute([
 		"package.path = package.path .. ';./?/?.lua'",
 		"require 'launch_js'"
 	].join('\n'));
 }
 
-$(document).ready(function() {
-	printElement = $('#print');
-
-	executeLuaVMFileSet({
-		//TODO don't store them here
-		//just pull from https://raw.github.com/thenumbernine/stupid-text-rpg/master/
-		files : [
-			'army.lua',
-			'battle.lua',
-			'box.lua',
-			'client.lua',
-			'entity.lua',
-			'items.lua',
-			'jobs.lua',
-			'launch_js.lua',
-			'log.lua',
-			'map.lua',
-			'monster.lua',
-			'player.lua',
-			'stupid.lua',
-			'treasure.lua',
-			'unit.lua',
-			'util.lua',
-			'vec.lua',
-			'view.lua'	
-		],
-		packages : ['ext'],
-		onexec : function(url, dest) {
-			Module.print('loading '+dest+' ...');
-		},
-		//wait til all are loaded, then insert them in order
-		//this way we run the lua.vm.js before writing to the filesystems (since the filesystem is created by lua.vm.js)
-		done : function() { 
-			Module.print('initializing...');
-			setTimeout(doneLoadingFilesystem, 0);
-		}
-	});
+executeLuaVMFileSet({
+	FS : LuaModule.FS,
+	//TODO just pull from https://raw.github.com/thenumbernine/stupid-text-rpg/master/
+	files : [
+		'army.lua',
+		'battle.lua',
+		'box.lua',
+		'client.lua',
+		'entity.lua',
+		'items.lua',
+		'jobs.lua',
+		'launch_js.lua',
+		'log.lua',
+		'map.lua',
+		'monster.lua',
+		'player.lua',
+		'stupid.lua',
+		'treasure.lua',
+		'unit.lua',
+		'util.lua',
+		'vec.lua',
+		'view.lua'
+	],
+	packages : ['ext'],
+	onexec : function(url, dest) {
+		LuaModule.print('loading '+dest+' ...');
+	},
+	//wait til all are loaded, then insert them in order
+	//this way we run the lua.vm.js before writing to the filesystems (since the filesystem is created by lua.vm.js)
+	done : function() {
+		LuaModule.print('initializing...');
+		setTimeout(doneLoadingFilesystem, 0);
+	}
 });
-
