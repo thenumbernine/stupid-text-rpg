@@ -1,7 +1,7 @@
 local ffi = require 'ffi'
-local glfw = require 'ffi.glfw'
-local gl = require 'ffi.gl'
-local glu = require 'ffi.glu'
+local glfw = require 'ffi.req' 'glfw'
+local gl = require 'ffi.req' 'gl'
+local glu = require 'ffi.req' 'glu'
 
 launcher = {
 	getInput = function()
