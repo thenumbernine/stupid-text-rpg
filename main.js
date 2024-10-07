@@ -1,5 +1,5 @@
 import {require} from '/js/util.js';
-import {executeLuaVMFileSet} from '/js/lua.vm-util.js.lua';
+import {executeLuaVMFileSet} from '/js/lua.vm-util.js';
 
 let printBuffer = '';
 const printElement = document.getElementById('print');
