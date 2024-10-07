@@ -4,7 +4,7 @@ import {executeLuaVMFileSet} from '/js/lua.vm-util.js';
 let printBuffer = '';
 const printElement = document.getElementById('print');
 
-function printOutAndErr(s) {
+printOutAndErr = s => {
 	console.log("print: "+s);
 	if (printBuffer !== '') printBuffer += '\n';
 	printBuffer += s
@@ -28,7 +28,7 @@ window.clearOutput = () => {
 window.LuaModule = {
 	print : printOutAndErr,
 	printErr : printOutAndErr,
-	stdin : function() {},
+	stdin : () => {},
 };
 let LuaModule = await require('/js/lua.vm.js');
 window.LuaModule = undefined;
@@ -37,14 +37,14 @@ window.LuaModule = LuaModule;
 let lastCmd = null;
 
 //update if there are any stored input commands
-function update() {
+update = () => {
 	if (lastCmd !== null) {
 		LuaModule.Lua.execute('launcher.update("'+lastCmd+'")');
 		lastCmd = null;
 	}
 }
 
-function doneLoadingFilesystem() {
+doneLoadingFilesystem = () => {
 	//set up input handler
 	window.addEventListener('keydown', e => {
 		switch (e.keyCode) {
@@ -105,14 +105,14 @@ executeLuaVMFileSet({
 		'vec.lua',
 		'view.lua'
 	],
-	packages : ['ext'],
-	onexec : function(url, dest) {
+	packages : ['ext', 'template'],
+	onexec : (url, dest) => {
 		LuaModule.print('loading '+dest+' ...');
 	},
 	//wait til all are loaded, then insert them in order
 	//this way we run the lua.vm.js before writing to the filesystems (since the filesystem is created by lua.vm.js)
-	done : function() {
+	done : () => {
 		LuaModule.print('initializing...');
 		setTimeout(doneLoadingFilesystem, 0);
-	}
+	},
 });
