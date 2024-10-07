@@ -4,7 +4,7 @@ import {executeLuaVMFileSet} from '/js/lua.vm-util.js';
 let printBuffer = '';
 const printElement = document.getElementById('print');
 
-printOutAndErr = s => {
+const printOutAndErr = s => {
 	console.log("print: "+s);
 	if (printBuffer !== '') printBuffer += '\n';
 	printBuffer += s
@@ -37,14 +37,14 @@ window.LuaModule = LuaModule;
 let lastCmd = null;
 
 //update if there are any stored input commands
-update = () => {
+const update = () => {
 	if (lastCmd !== null) {
 		LuaModule.Lua.execute('launcher.update("'+lastCmd+'")');
 		lastCmd = null;
 	}
 }
 
-doneLoadingFilesystem = () => {
+const doneLoadingFilesystem = () => {
 	//set up input handler
 	window.addEventListener('keydown', e => {
 		switch (e.keyCode) {
