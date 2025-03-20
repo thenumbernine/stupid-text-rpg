@@ -1,5 +1,6 @@
-import {require} from '/js/util.js';
-import {executeLuaVMFileSet} from '/js/lua.vm-util.js';
+import {addPackage} from '/js/lua.vm-util.js';
+import {newLua} from '/js/lua-interop.js';
+import {luaPackages} from '/js/lua-packages.js';
 
 let printBuffer = '';
 const printElement = document.getElementById('print');
@@ -23,23 +24,22 @@ window.clearOutput = () => {
 	printElement.innerHTML = printBuffer = '';
 };
 
-
-//exported for the LuaModule require
-window.LuaModule = {
+const lua = await newLua({
 	print : printOutAndErr,
 	printErr : printOutAndErr,
-	stdin : () => {},
-};
-let LuaModule = await require('/js/lua.vm.js');
-window.LuaModule = undefined;
-window.LuaModule = LuaModule;
+});
+lua.newState();
+console.log('lua', lua);
+const FS = lua.lib.FS;
+window.lua = lua;
 
 let lastCmd = null;
 
 //update if there are any stored input commands
 const update = () => {
 	if (lastCmd !== null) {
-		LuaModule.Lua.execute('launcher.update("'+lastCmd+'")');
+console.log('launcher.update');
+		lua.doString('launcher.update("'+lastCmd+'")');
 		lastCmd = null;
 	}
 }
@@ -76,43 +76,48 @@ const doneLoadingFilesystem = () => {
 	setInterval(update, 100);
 
 	//launch first file
-	LuaModule.Lua.execute([
-		"package.path = package.path .. ';./?/?.lua'",
-		"require 'launch_js'"
-	].join('\n'));
+console.log('set packages');
+	lua.doString(`
+package.loaded.ffi = nil	-- pretend we don't know ffi since it's buggy lua-ffi
+js = require 'js'			-- set global ... either here or in launch_js.lua, idk
+package.path = './?.lua;/?.lua;/?/?.lua'
+require 'launch_js'
+`);
 }
 
-executeLuaVMFileSet({
-	FS : LuaModule.FS,
-	//TODO just pull from https://raw.github.com/thenumbernine/stupid-text-rpg/master/
-	files : [
-		'army.lua',
-		'battle.lua',
-		'box.lua',
-		'client.lua',
-		'entity.lua',
-		'items.lua',
-		'jobs.lua',
-		'launch_js.lua',
-		'log.lua',
-		'map.lua',
-		'monster.lua',
-		'player.lua',
-		'stupid.lua',
-		'treasure.lua',
-		'unit.lua',
-		'util.lua',
-		'vec.lua',
-		'view.lua'
+await Promise.all([
+	luaPackages.ext,
+	luaPackages.template,
+	// why not put this there too?
+	[
+		{
+			from : '/lua/stupid-text-rpg',
+			to : 'stupid',
+			files : [
+				'army.lua',
+				'battle.lua',
+				'box.lua',
+				'client.lua',
+				'entity.lua',
+				'items.lua',
+				'jobs.lua',
+				'launch_js.lua',
+				'log.lua',
+				'map.lua',
+				'monster.lua',
+				'player.lua',
+				'stupid.lua',
+				'treasure.lua',
+				'unit.lua',
+				'util.lua',
+				'vec.lua',
+				'view.lua'
+			],
+		},
 	],
-	packages : ['ext', 'template'],
-	onexec : (url, dest) => {
-		LuaModule.print('loading '+dest+' ...');
-	},
-	//wait til all are loaded, then insert them in order
-	//this way we run the lua.vm.js before writing to the filesystems (since the filesystem is created by lua.vm.js)
-	done : () => {
-		LuaModule.print('initializing...');
-		setTimeout(doneLoadingFilesystem, 0);
-	},
-});
+].map(pkg => addPackage(FS, pkg)))
+
+FS.chdir('/stupid');
+
+lua.lib.print('initializing...');
+setTimeout(doneLoadingFilesystem, 0);
