@@ -1,4 +1,4 @@
-import {addPackage} from '/js/lua.vm-util.js';
+import {addPackage} from '/js/util.js';
 import {newLua} from '/js/lua-interop.js';
 import {luaPackages} from '/js/lua-packages.js';
 
