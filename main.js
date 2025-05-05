@@ -39,7 +39,7 @@ let lastCmd = null;
 const update = () => {
 	if (lastCmd !== null) {
 console.log('launcher.update');
-		lua.doString('launcher.update("'+lastCmd+'")');
+		lua.run('launcher.update("'+lastCmd+'")');
 		lastCmd = null;
 	}
 }
@@ -77,7 +77,7 @@ const doneLoadingFilesystem = () => {
 
 	//launch first file
 console.log('set packages');
-	lua.doString(`
+	lua.run(`
 package.loaded.ffi = nil	-- pretend we don't know ffi since it's buggy lua-ffi
 js = require 'js'			-- set global ... either here or in launch_js.lua, idk
 package.path = './?.lua;/?.lua;/?/?.lua'
