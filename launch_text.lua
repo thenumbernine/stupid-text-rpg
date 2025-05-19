@@ -1,3 +1,4 @@
+#!/usr/bin/env luajit
 launcher = {
 	getInput = function()
 		local ffi = require 'ffi'

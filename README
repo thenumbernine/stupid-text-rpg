@@ -3,7 +3,7 @@
 depends on my lua-ext at http://github.com/thenumbernine/lua-ext
 put it in the 'ext' folder off your cwd (or LUA_PATH)
 
-use "lua launch_text.lua" to start it up
+use "luajit launch_text.lua" to start it up
 
 ===	Lua OpenGL Version ===
 

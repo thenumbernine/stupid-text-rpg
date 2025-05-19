@@ -1,0 +1,30 @@
+name = "stupid-text-rpg"
+files = {
+	["README"] = "stupid-text-rpg/README",
+	["army.lua"] = "stupid-text-rpg/army.lua",
+	["battle.lua"] = "stupid-text-rpg/battle.lua",
+	["box.lua"] = "stupid-text-rpg/box.lua",
+	["client.lua"] = "stupid-text-rpg/client.lua",
+	["entity.lua"] = "stupid-text-rpg/entity.lua",
+	["index.html"] = "stupid-text-rpg/index.html",
+	["items.lua"] = "stupid-text-rpg/items.lua",
+	["jobs.lua"] = "stupid-text-rpg/jobs.lua",
+	["launch_gl.lua"] = "stupid-text-rpg/launch_gl.lua",
+	["launch_js.lua"] = "stupid-text-rpg/launch_js.lua",
+	["launch_text.lua"] = "stupid-text-rpg/launch_text.lua",
+	["log.lua"] = "stupid-text-rpg/log.lua",
+	["main.js"] = "stupid-text-rpg/main.js",
+	["map.lua"] = "stupid-text-rpg/map.lua",
+	["monster.lua"] = "stupid-text-rpg/monster.lua",
+	["player.lua"] = "stupid-text-rpg/player.lua",
+	["stupid.lua"] = "stupid-text-rpg/stupid.lua",
+	["treasure.lua"] = "stupid-text-rpg/treasure.lua",
+	["unit.lua"] = "stupid-text-rpg/unit.lua",
+	["util.lua"] = "stupid-text-rpg/util.lua",
+	["vec.lua"] = "stupid-text-rpg/vec.lua",
+	["view.lua"] = "stupid-text-rpg/view.lua",
+}
+deps = {
+	"ext",
+	"ffi",
+}
