@@ -1,6 +1,5 @@
-import {addPackage} from '/js/util.js';
 import {newLua} from '/js/lua-interop.js';
-import {luaPackages} from '/js/lua-packages.js';
+import {loadPackageAndDeps} from '/js/util.js';
 
 let printBuffer = '';
 const printElement = document.getElementById('print');
@@ -85,39 +84,9 @@ require 'launch_js'
 `);
 }
 
-await Promise.all([
-	luaPackages.ext,
-	luaPackages.template,
-	// why not put this there too?
-	[
-		{
-			from : '/lua/stupid-text-rpg',
-			to : 'stupid',
-			files : [
-				'army.lua',
-				'battle.lua',
-				'box.lua',
-				'client.lua',
-				'entity.lua',
-				'items.lua',
-				'jobs.lua',
-				'launch_js.lua',
-				'log.lua',
-				'map.lua',
-				'monster.lua',
-				'player.lua',
-				'stupid.lua',
-				'treasure.lua',
-				'unit.lua',
-				'util.lua',
-				'vec.lua',
-				'view.lua'
-			],
-		},
-	],
-].map(pkg => addPackage(FS, pkg)))
+await loadPackageAndDeps(FS, ['stupid-text-rpg']);
 
-FS.chdir('/stupid');
+FS.chdir('/stupid-text-rpg');
 
 lua.lib.print('initializing...');
 setTimeout(doneLoadingFilesystem, 0);
