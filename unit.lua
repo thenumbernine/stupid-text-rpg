@@ -67,7 +67,7 @@ Unit.baseTypes = table{
 
 for i=1,#Unit.baseTypes do
 	local baseType = Unit.baseTypes[i]
-	
+
 -- [[ all random
 	for _,stat in ipairs(Unit.statFields) do
 		if stat ~= 'level'
@@ -80,7 +80,7 @@ for i=1,#Unit.baseTypes do
 		end
 	end
 --]]
-	
+
 --[[ some order
 print()
 print(baseType.name)
@@ -88,18 +88,18 @@ print('baseType.weight '..baseType.weight)
 print('baseType.size '..(sizes:find(baseType.size) - sizes:find('medium')))
 
 	local sizeOffset = assert(sizes:find(baseType.size) - sizes:find('medium'))	-- zero is medium
-	
+
 	-- zero is 150lbs, -1 at 120lbs
 	-- .1lbs => -33
 	-- 15000lbs => 21
 	local weightOffset = (math.log(baseType.weight) - math.log(150)) / math.log(1.25) * .1
-	
+
 print('weightOffset '..weightOffset)
 print('sizeOffset '..sizeOffset)
 
 	local offset = sizeOffset + weightOffset
 print('offset '..offset)
-	
+
 	baseType.hpMaxRange = vec2(-10, 10) + offset * 20
 	baseType.moveRange = vec2(0,2 * math.max(0, offset / 4))
 	baseType.speedRange = vec2(-2, 5 - offset)
@@ -108,7 +108,7 @@ print('offset '..offset)
 	baseType.hitChanceRange = vec2(-25, 25 + offset * 25)
 	baseType.evadeRange = vec2(0, 20 + offset * 10)
 --]]
-	
+
 	for _,baseField in ipairs(Unit.statFields) do
 		local rangeField = baseField..'Range'
 		if baseType[rangeField] then
@@ -116,7 +116,7 @@ print('offset '..offset)
 			if baseType[rangeField][1] < min then baseType[rangeField][1] = min end
 		end
 	end
-	
+
 	-- make sure maxs > mins ... set maxs to mins if it is lower
 	for _,baseField in ipairs(Unit.statFields) do
 		local field = baseField..'Range'
@@ -175,9 +175,9 @@ function Unit:init(args)
 			end
 		end
 	end
-	
+
 	Unit.super.init(self, args)
-	
+
 	--[[
 	for _,field in ipairs(self.equipFields) do
 		local possibleEquips = table()
@@ -198,7 +198,7 @@ end
 function Unit:update()
 	Unit.super.update(self)
 	if self.dead then return end
-	
+
 	if not self.client then
 		if self.battle then
 			if self.battle.currentEnt == self then
@@ -246,8 +246,8 @@ function Unit:update()
 			if self.wanderIdle and math.random(4) == 4 then
 				self:walk(dirs[math.random(#dirs)])
 			end
-		end	
-	
+		end
+
 	-- client-driven
 	else
 		if not self.battle then
@@ -256,14 +256,14 @@ function Unit:update()
 				local i = self.army.ents:find(self)
 				assert(i > 1)
 				local followme = assert(self.army.ents[i-1])
-				-- now do pathfinding 
-				
+				-- now do pathfinding
+
 				-- TODO A* ... so we don't have to search so far
 				local followBox = box2(self.pos)
 				followBox:stretch(followme.pos)
 				followBox.min = followBox.min - 5
 				followBox.max = followBox.max + 5
-				
+
 				local path, dist = pathSearchToPoint{
 					src = self.pos,
 					dst = followme.pos,		--lastpos
@@ -276,7 +276,7 @@ function Unit:update()
 					self:walk(path:remove(1).dir)
 				end
 			end
-		
+
 			-- auto pick up items we walk over
 			local getEnts = entsAtPos(self.pos)
 			if getEnts then
@@ -287,7 +287,7 @@ function Unit:update()
 				end
 			end
 		end
-		
+
 		self:checkBattle()
 		self:updateFog()
 	end
@@ -298,7 +298,7 @@ function Unit:updateFog()
 	local fogTiles = floodFillTiles(self.pos, box2(self.pos - radius, self.pos + radius))
 	for _,pos in ipairs(fogTiles) do
 		for _,dir in ipairs(dirs) do
-			local ofspos = (dirs[dir] + pos):clamp(map.bbox)			
+			local ofspos = (dirs[dir] + pos):clamp(map.bbox)
 			map.tiles[ofspos[1]][ofspos[2]].lastSeen = game.time
 		end
 	end
@@ -306,28 +306,28 @@ end
 
 function Unit:checkBattle()
 	if self.battle then return end
-	
+
 	local searchRadius = 3
 	local closeEnts = entsAtPositions(floodFillTiles(self.pos, box2(self.pos-searchRadius,self.pos+searchRadius)))
-	closeEnts = closeEnts:filter(function(ent)
+	closeEnts = closeEnts:filteri(function(ent)
 		return ent.canBattle
 			and not ent.dead
 			and ent.army.affiliation ~= self.army.affiliation
 	end)
 	if #closeEnts > 0 then
-	
+
 		local battleBox = box2(self.pos - Battle.radius, self.pos + Battle.radius)
 		local armies = table()
 		local battlePositions
-		
+
 		while true do
 			battlePositions = floodFillTiles(self.pos, battleBox)
-		
+
 			-- if we're into battle then include anything in a 4-unit radius
-			local battleEnts = entsAtPositions(battlePositions):filter(function(ent)
+			local battleEnts = entsAtPositions(battlePositions):filteri(function(ent)
 				return ent.canBattle and not ent.dead
 			end)
-			
+
 			-- stretch border too
 			local stretchedBBox
 			armies = table()
@@ -339,7 +339,7 @@ function Unit:checkBattle()
 					stretchedBBox:stretch(ent.pos)
 				end
 			end
-			
+
 			local size = stretchedBBox:size()
 			for i=1,2 do
 				local width = 2 * Battle.radius + 1
@@ -350,7 +350,7 @@ function Unit:checkBattle()
 					stretchedBBox.max[i] = stretchedBBox.max[i] + math.ceil(diff / 2)
 				end
 			end
-			
+
 			-- if we stretched outside the battle box bounds
 			if not battleBox:contains(stretchedBBox) then
 				battleBox:stretch(stretchedBBox)
@@ -359,12 +359,12 @@ function Unit:checkBattle()
 				break
 			end
 		end
-		
+
 		-- TODO re-include all ents in the box, then re-stretch the box, and keep going?
 		-- or TODO better borders on the battle, and don't use boxes (just collect valid floor tiles)
-		
+
 		Battle{armies=armies, bbox=battleBox}
-		
+
 		-- make all battle tiles visible
 		for _,pos in ipairs(battlePositions) do
 			for _,dir in ipairs(dirs) do
@@ -377,7 +377,7 @@ end
 
 function Unit:die()
 	Unit.super.die(self)
-	
+
 	local lastToDie = true
 	for _,ent in ipairs(self.army.ents) do
 		if ent ~= self and not ent.dead then
@@ -385,17 +385,17 @@ function Unit:die()
 			break
 		end
 	end
-	
+
 	local t = Treasure{
 		pos = self.pos,
 		army = Army(),
 	}
-	
+
 	if lastToDie then
 		t.army.gold = self.army.gold
 		self.army.gold = 0
 	end
-	
+
 	for _,equip in ipairs(self.equipFields) do
 		local item = self[equip]
 		if item then
@@ -403,7 +403,7 @@ function Unit:die()
 			t.army:addItem(item)	-- should we take all items?
 		end
 	end
-	
+
 	-- or just only for monsters?  'dropItemsOnDeath' ?
 	if lastToDie then
 		for i=#self.army.items,1,-1 do

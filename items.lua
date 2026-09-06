@@ -25,24 +25,24 @@ local Equipment = class(Item)
 
 function Equipment:init(maxLevel)
 	assert(self.baseTypes, "tried to instanciate an equipment of type "..self.name.." with no basetypes")
-	
+
 	local baseTypeOptions = table(self.baseTypes)
 	local modifierOptions = table(self.modifiers)
 	if maxLevel then
 		local filter = function(baseType)
 			return not baseType.dropLevel or baseType.dropLevel <= maxLevel
 		end
-		baseTypeOptions = baseTypeOptions:filter(filter)
-		modifierOptions = modifierOptions:filter(filter)
+		baseTypeOptions = baseTypeOptions:filteri(filter)
+		modifierOptions = modifierOptions:filteri(filter)
 	end
 
 	local baseType = baseTypeOptions[math.random(#baseTypeOptions)]
 	local modifier = modifierOptions[math.random(#modifierOptions)]
-	
+
 	self.name = modifier.name
 	if self.name ~= '' then self.name = self.name..' ' end
 	self.name = self.name..baseType.name
-	
+
 	for _,baseField in ipairs(Entity.statFields) do
 		if table.find(self.modifierFields, baseField) then
 			local field = baseField..'Range'
@@ -53,7 +53,7 @@ function Equipment:init(maxLevel)
 			self[field] = range
 		end
 	end
-	
+
 	setFieldsByRange(self, Entity.statFields)
 end
 
